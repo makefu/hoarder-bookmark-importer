@@ -4,6 +4,8 @@
 
 Options:
   --token-file=<token>  API token from hoarder [default: .token]
+  --list-id=<list>      ID of the list to upload to, must be set [default: None]
+  --host=<host>         Hostname of the hoarder instance, must be set [default: None]
 
 Arguments:
   <input_file>  JSON file (Firefox) containing bookmarks
@@ -12,20 +14,10 @@ Arguments:
 import requests
 import sys
 import json
-from pprint import pprint
 import datetime
 from docopt import docopt
 
-host = "https://bookmark.euer.krebsco.de"
 # l = "pyhhs32b1ujkefvl2ld56d28" # imported bookmarks: GET /api/v1/lists
-l = "d68fksyg65p1s9n4sc4bv0cp" # test
-url = f"{host}/api/v1/lists/{l}"
-bmarkurl=f"{url}/bookmarks"
-# the bookmarks are added to the list afterwards
-addbmark=f"{host}/api/v1/bookmarks"
-# api/v1/lists/:listId/bookmarks/:bookmarkId
-addlist=f"{bmarkurl}"
-addtag=f"{addbmark}"
 # url = f"{host}/api/v1/bookmarks?limit=100"
 
 
@@ -70,6 +62,25 @@ def main():
   args = docopt(__doc__)
   infile = args['<input_file>']
   token_file = args['--token-file']
+
+  if not args["--host"]:
+    print("no host provided, stopping")
+    sys.exit(1)
+  host = args["--host"]
+
+
+  if not args['--list-id']:
+    print("no list-id provided, stopping")
+    sys.exit(1)
+  l = args['--list-id']
+  
+  url = f"{host}/api/v1/lists/{l}"
+  bmarkurl=f"{url}/bookmarks"
+  # the bookmarks are added to the list afterwards
+  addbmark=f"{host}/api/v1/bookmarks"
+  # api/v1/lists/:listId/bookmarks/:bookmarkId
+  addlist=f"{bmarkurl}"
+  addtag=f"{addbmark}"
   with open(token_file) as f:
     print(f"loading token from {token_file}")
     token = f.read().strip()
